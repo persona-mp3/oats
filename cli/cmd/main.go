@@ -51,7 +51,7 @@ func (r *Req) makeRequest(c *http.Client) (*Res, error) {
 	newReq.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(newReq)
 	if err != nil {
-		return nil, fmt.Errorf("error in creating request:%w", err)
+		return nil, fmt.Errorf("error in contacting server:%w", err)
 	}
 
 	defer res.Body.Close()
@@ -125,7 +125,7 @@ func main() {
 	newReq := &Req{
 		Method:   "GET",
 		Endpoint: addr + tgtEndpoint,
-		Body: nil,
+		Body:     nil,
 	}
 
 	if tgtEndpoint == registerRoute || tgtEndpoint == loginRoute {
@@ -147,11 +147,24 @@ func main() {
 	newReq.Context = ctx
 
 	c := newClient()
+	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		res := Res{}
+		res.Code = req.Response.StatusCode
+		url, err := req.Response.Location()
+		if err != nil {
+			return fmt.Errorf("occured in getting Location from redirect\n:%w", err)
+		}
+
+		fmt.Println("irl->", url)
+		fmt.Printf("redirect-response -> %+v+\n", req.Response)
+		return http.ErrUseLastResponse
+	}
 
 	res, err := newReq.makeRequest(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("%s\n", res.Body)
+	log.Println("response from server:")
+	fmt.Printf("\n%s\n", res.Body)
 }

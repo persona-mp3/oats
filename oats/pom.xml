@@ -48,7 +48,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- For multivalued maps when parsing multiple query params  -->
+		<dependency>
+			<groupId>jakarta.ws.rs</groupId>
+			<artifactId>jakarta.ws.rs-api</artifactId>
+			<!-- <version>3.1.0</version> -->
+	</dependency>
 	</dependencies>
+
 
 	<build>
 		<plugins>

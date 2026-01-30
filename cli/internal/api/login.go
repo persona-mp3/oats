@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func configureRedirectToWSS(c *http.Client) (*RedirectInfo, error) {
+func configureRedirectToWSS(c *http.Client) (*RedirectInfo) {
 	info := &RedirectInfo{}
 
 	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
@@ -19,24 +19,23 @@ func configureRedirectToWSS(c *http.Client) (*RedirectInfo, error) {
 		info.statusCode = req.Response.StatusCode
 		return http.ErrUseLastResponse
 	}
-	return info, nil
+	return info
 }
 
 func (req *Req) LoginRouteHandler(c *http.Client) (*GenericRes, *RedirectInfo, error) {
 	fmt.Println("\n making request to:", req.Endpoint)
-	info, _ := configureRedirectToWSS(c)
+	if c == nil {
+		return nil, nil, fmt.Errorf("client pointer is nil")
+	}
+
+	info := configureRedirectToWSS(c)
 
 	newReq, err := http.NewRequestWithContext(req.Context, req.Method, req.Endpoint, req.Body)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error in creating new request:\n: %w", err)
 	}
 
-	if c == nil {
-		panic("api.LoginRoute:client pointer is nil")
-	}
-
 	newReq.Header.Set("Content-Type", "application/json")
-
 
 	response, err := c.Do(newReq)
 	if err != nil {

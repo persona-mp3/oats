@@ -1,54 +1,73 @@
 import express from "express"
 import { createServer } from "node:http"
-import { Server } from "socket.io"
-import { fileURLToPath } from "node:url"
-import { dirname, join } from "node:path"
+import WebSocket, { WebSocketServer } from "ws"
 
+import type { IncomingMessage } from "node:http"
+import { OatSocket } from "./extensions.js"
 
-const WS_PORT = 3900
+import { authClient } from "./middleware/auth.js"
+import { handleError, handleDisconnection, handleMessage } from "./handlers.js"
 
 const app = express()
-const server = createServer(app)
-const wsServer = new Server(server, { connectionStateRecovery: {} })
+const httpServer = createServer(app)
+// const wss = new WebSocketServer({ server: httpServer })
+const wss = new WebSocketServer({ noServer: true })
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-
-// main middleware for validating all requests
-function authenticateUser(): void {
-	console.log("base_ball")
-}
-authenticateUser()
+const PORT = 3900
 
 app.get("/", (req, res) => {
-	console.log("someone pingedhere", req.originalUrl)
-	res.sendFile(join(__dirname, "index.html"))
+	console.log("index route of server got hit")
+	res.send("took_a_pill_in_ibixa")
 })
 
 
-// WEBSOCKET OPERATIONS
-function handleNewConnection(socket: any) {
-	console.log("nu_client has connected")
+function handleNewConnection(ws: WebSocket, req: IncomingMessage) {
+	ws.on("close", handleDisconnection)
 
-	socket.on("disconnect", handleDisconnection)
-	socket.on("message", handleMessageEvent)
-}
+	ws.on("message", (data) => handleMessage(ws, data))
 
-function handleMessageEvent(msg: any) {
-	wsServer.emit("message", msg)
+	ws.on("error", handleError)
 }
 
 
-function handleDisconnection() {
-	console.log("nu_client disconnected")
-}
+wss.on("connection", handleNewConnection)
 
-wsServer.on("connection", handleNewConnection)
+httpServer.on("upgrade", (req, socket, head) => {
+	if (!req.url) {
+		console.log("ban him chat")
+		socket.destroy()
+		return
+	}
 
-// wsServer.on("connection", (socket) => {
-// 	console.log("new connection made")
-// })
+	const url = new URL(req.url)
+	const user = url.searchParams.get("user")
+	const token = url.searchParams.get("token")
+
+	if (!user || !token) {
+		console.log("client did not provide username or token", user, token)
+		socket.destroy()
+		return
+	}
+
+	const isAuth = authClient(user, token)
+
+	if (!isAuth.status) {
+		socket.destroy()
+		return
+	}
+
+	wss.handleUpgrade(req, socket, head, (ws: OatSocket) => {
+		ws.user = user // userName provided
+		ws.token = token // auth token parsed from url_params
+		ws.info = isAuth.info // includes friends, groups, no exposed credentials
+		wss.emit("connection", ws, req)
+	})
 
 
-server.listen(WS_PORT, () => {
-	console.log("wss running on: http://localhost:3900")
+})
+
+
+
+httpServer.listen(PORT, () => {
+	console.log("web-socket-server: http://localhost:3900")
 })

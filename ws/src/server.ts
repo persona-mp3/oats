@@ -1,16 +1,14 @@
 import express from "express"
 import { createServer } from "node:http"
 import WebSocket, { WebSocketServer } from "ws"
-
 import type { IncomingMessage } from "node:http"
-import { OatSocket } from "./extensions.js"
 
+import { OatSocket } from "./extensions.js"
 import { authClient } from "./middleware/auth.js"
 import { handleError, handleDisconnection, handleMessage } from "./handlers.js"
 
 const app = express()
 const httpServer = createServer(app)
-// const wss = new WebSocketServer({ server: httpServer })
 const wss = new WebSocketServer({ noServer: true })
 
 const PORT = 3900
@@ -20,7 +18,6 @@ app.get("/", (req, res) => {
 	res.send("took_a_pill_in_ibixa")
 })
 
-
 function handleNewConnection(ws: WebSocket, req: IncomingMessage) {
 	ws.on("close", handleDisconnection)
 
@@ -28,7 +25,6 @@ function handleNewConnection(ws: WebSocket, req: IncomingMessage) {
 
 	ws.on("error", handleError)
 }
-
 
 wss.on("connection", handleNewConnection)
 
@@ -62,11 +58,7 @@ httpServer.on("upgrade", (req, socket, head) => {
 		ws.info = isAuth.info // includes friends, groups, no exposed credentials
 		wss.emit("connection", ws, req)
 	})
-
-
 })
-
-
 
 httpServer.listen(PORT, () => {
 	console.log("web-socket-server: http://localhost:3900")

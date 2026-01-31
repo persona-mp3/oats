@@ -8,8 +8,6 @@ export function handleMessage(ws: WebSocket, data: WebSocket.RawData) {
 	console.log("message handler")
 }
 
-
-
 export function handleError(err: Error) {
 	console.error("received error from client")
 	console.error(err)

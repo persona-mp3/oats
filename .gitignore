@@ -1,1 +1,3 @@
 oats/target
+node_modules
+dist/

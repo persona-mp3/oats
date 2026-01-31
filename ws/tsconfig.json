@@ -1,0 +1,24 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "target": "esnext",
+    "module": "nodenext",
+		"lib": ["ESNext"],
+    // For nodejs:
+    // "lib": ["esnext"],
+    // "types": ["node"],
+    // and npm install -D @types/node
+
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+	"includes": ["src/**/*"]
+}

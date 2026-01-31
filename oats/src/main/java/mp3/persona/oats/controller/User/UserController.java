@@ -18,7 +18,7 @@ import mp3.persona.oats.entities.User;
 // might use OAuth for authentication or feeling funky shh
 class UserController {
 	// will later actual repositories and mongoDB
-	private String redirectBaseLink = "wss://donalglover:8377/";
+	private String redirectBaseLink = "http://localhost:3900/";
 
 	@PostMapping("/register")
 	public ResponseEntity<?> loginUser(@RequestBody User userReq) {
@@ -45,11 +45,12 @@ class UserController {
 			return ResponseEntity.internalServerError().build();
 		}
 
-		return sendRedirectToWSServer(authToken);
+		// TEST: removing auth_query params for now to test flow
+		return sendRedirectToWSServer(authToken = "");
 	}
 
 	private ResponseEntity<Void> sendRedirectToWSServer(String authToken) {
-		String redirectLink = redirectBaseLink + "/" + authToken; // use uri instead
+		String redirectLink = redirectBaseLink + authToken; // use uri to parse link instead
 		return ResponseEntity
 				.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectLink)
 				.build();

@@ -1,3 +1,4 @@
+
 package api
 
 import (
@@ -6,7 +7,7 @@ import (
 	"net/http"
 )
 
-func configureRedirectToWSS(c *http.Client) (*RedirectInfo) {
+func configureRedirectToWSS(c *http.Client) *RedirectInfo {
 	info := &RedirectInfo{}
 
 	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
@@ -17,7 +18,8 @@ func configureRedirectToWSS(c *http.Client) (*RedirectInfo) {
 
 		info.url = redirectUrl
 		info.statusCode = req.Response.StatusCode
-		return http.ErrUseLastResponse
+		// return http.ErrUseLastResponse
+		return nil
 	}
 	return info
 }
@@ -54,5 +56,5 @@ func (req *Req) LoginRouteHandler(c *http.Client) (*GenericRes, *RedirectInfo, e
 	serverRes.Content = content
 
 	fmt.Printf("\nRedirect-link: %s\n", info.url.String())
-	return serverRes, info, nil
+	return serverRes, nil, nil
 }

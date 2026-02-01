@@ -101,7 +101,7 @@ func main() {
 	client := newClient()
 
 	if tgtEndpoint == registerRoute {
-		if _, _, err := newReq.LoginRouteHandler(client); err != nil {
+		if err := newReq.HandleLoginRoute(client); err != nil {
 			log.Fatal(err)
 		}
 		return

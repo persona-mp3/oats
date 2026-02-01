@@ -18,7 +18,8 @@ import mp3.persona.oats.entities.User;
 // might use OAuth for authentication or feeling funky shh
 class UserController {
 	// will later actual repositories and mongoDB
-	private String redirectBaseLink = "http://localhost:3900/";
+	private String redirectBaseLink = "ws://localhost:3900";
+	private String authToken = "don't_be_scandalous";
 
 	@PostMapping("/register")
 	public ResponseEntity<?> loginUser(@RequestBody User userReq) {
@@ -33,26 +34,25 @@ class UserController {
 			return sendBadRequest("invalid credentials or user doesn't exist");
 		}
 
-		String authToken = "dont_be_scandolous";
 		MultiValueMap<String, String> mulMap = new LinkedMultiValueMap<>();
 		// You can add other query params here
-		mulMap.add("authToken", authToken);
+		mulMap.add("userName", userReq.userName);
+		mulMap.add("token", authToken);
 
+		String to_wss = "";
 		try {
-			Utils.parseUrl(redirectBaseLink, mulMap);
+			to_wss = Utils.parseUrl(redirectBaseLink, mulMap);
 		} catch (Exception err) {
 			System.out.printf("unexpected erorr occured:", err);
 			return ResponseEntity.internalServerError().build();
 		}
 
-		// TEST: removing auth_query params for now to test flow
-		return sendRedirectToWSServer(authToken = "");
+		return sendRedirectToWSServer(to_wss);
 	}
 
-	private ResponseEntity<Void> sendRedirectToWSServer(String authToken) {
-		String redirectLink = redirectBaseLink + authToken; // use uri to parse link instead
+	private ResponseEntity<Void> sendRedirectToWSServer(String url) {
 		return ResponseEntity
-				.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectLink)
+				.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url)
 				.build();
 	}
 

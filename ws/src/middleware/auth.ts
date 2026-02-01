@@ -45,20 +45,26 @@ class Database {
 	}
 
 	simulateConnection(): boolean {
-		setInterval(() => {
-			console.log("connecting to database")
-		}, 2000)
+		// setInterval(() => {
+		// 	console.log("connecting to database")
+		// }, 2000)
 
 		console.log("connected to databse")
 		return true;
 	}
 
 	findUser(userName: string, bearerToken: string): AuthStatus {
-		let authStats!: AuthStatus; // ! tells ts to remove all possible null/undefined types
-		authStats.status = false
+		let authStats: AuthStatus = {
+			status: false,
+		}; // ! tells ts to remove all possible null/undefined types
+		//
+		// authStats.status = false
 
 		const userExists = this.#users.has(userName)
-		if (!userExists) return authStats
+		if (!userExists) {
+			console.error("user doesn't exist", userName, userExists)
+			return authStats
+		}
 
 		console.log("user exists, extracting data")
 		const user: User | undefined = this.#users.get(userName)
@@ -68,13 +74,13 @@ class Database {
 		}
 
 
-		authStats.status = false
-		if (user.authToken && user.authToken === bearerToken) {
+		console.log("extracted-token", bearerToken)
+		if (user.authToken === bearerToken) {
+			console.log("tokens match")
 			authStats.info = masterCompadres()
 			authStats.status = true
 			return authStats
 		}
-
 
 		return authStats
 	}

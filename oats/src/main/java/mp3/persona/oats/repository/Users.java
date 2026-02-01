@@ -17,8 +17,8 @@ public class Users {
 				new User("childish_gambino", "awaken_my_love", "donaldglover@spotify.com"));
 
 		oaties.put(
-				"bill_evans_onkey",
-				new User("bill_evans_onkey", "peacepeice3000", "billevans@spotify.com"));
+				"billevans",
+				new User("billevans", "password1234", "billevans@gmail.com"));
 
 		oaties.put(
 				"west_side_gunn",
@@ -27,25 +27,22 @@ public class Users {
 	}
 
 	public static boolean findUser(User userCreds) {
-		System.out.println("good problems?");
 		if (!oaties.containsKey(userCreds.userName)) {
 			return false;
 		}
 
 		User userDetails = oaties.get(userCreds.userName);
 		if (!userDetails.email.equals(userCreds.email)) {
-			System.out.println("different emails, for userName, emailAuth");
-			System.out.printf("%s vs :%s\n", userDetails.email, userCreds.email);
+			System.out.println("failed-auth: email");
+			System.out.printf("%s | :%s\n", userDetails.email, userCreds.email);
 			return false;
 		}
 
 		if (!userDetails.password.equals(userCreds.password)) {
-			System.out.printf("Invalid password");
-			System.out.printf("%s vs :%s\n", userDetails.password, userCreds.email);
+			System.out.printf("failed-auth: passwd");
+			System.out.printf("%s | :%s\n", userDetails.password, userCreds.email);
 			return false;
 		}
-
-		System.out.println("good problems?");
 
 		return true;
 	}

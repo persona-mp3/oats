@@ -1,9 +1,9 @@
-
 package api
 
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -18,8 +18,8 @@ func configureRedirectToWSS(c *http.Client) *RedirectInfo {
 
 		info.url = redirectUrl
 		info.statusCode = req.Response.StatusCode
-		// return http.ErrUseLastResponse
-		return nil
+		return http.ErrUseLastResponse
+		// return nil
 	}
 	return info
 }
@@ -56,5 +56,29 @@ func (req *Req) LoginRouteHandler(c *http.Client) (*GenericRes, *RedirectInfo, e
 	serverRes.Content = content
 
 	fmt.Printf("\nRedirect-link: %s\n", info.url.String())
-	return serverRes, nil, nil
+	return serverRes, info, nil
+}
+
+func (req *Req) HandleLoginRoute(c *http.Client) error {
+	if c == nil {
+		log.Fatal("FUHHHH")
+	}
+	res, redirectInfo, err := req.LoginRouteHandler(c)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("status-code: %d\n", res.StatusCode)
+	log.Printf("server response: %s\n", res.Content)
+
+	log.Printf("handling upgrade...\n")
+	if redirectInfo == nil {
+		log.Fatal("we've caught the culprit, they said")
+	}
+
+	_err := req.requestUpgrade(redirectInfo)
+	if _err != nil {
+		return err
+	}
+	return nil
 }

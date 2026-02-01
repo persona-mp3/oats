@@ -19,6 +19,8 @@ app.get("/", (req, res) => {
 })
 
 function handleNewConnection(ws: WebSocket, req: IncomingMessage) {
+	console.log("[nu_conn] new connection")
+	ws.send("wassupi cuh?")
 	ws.on("close", handleDisconnection)
 
 	ws.on("message", (data) => handleMessage(ws, data))
@@ -29,14 +31,15 @@ function handleNewConnection(ws: WebSocket, req: IncomingMessage) {
 wss.on("connection", handleNewConnection)
 
 httpServer.on("upgrade", (req, socket, head) => {
+	console.log("listening for upgrade")
 	if (!req.url) {
 		console.log("ban him chat")
 		socket.destroy()
 		return
 	}
 
-	const url = new URL(req.url)
-	const user = url.searchParams.get("user")
+	const url = new URL("http://localhost:3900" + req.url)
+	const user = url.searchParams.get("userName")
 	const token = url.searchParams.get("token")
 
 	if (!user || !token) {
@@ -46,8 +49,10 @@ httpServer.on("upgrade", (req, socket, head) => {
 	}
 
 	const isAuth = authClient(user, token)
+	console.log("clients auth status:", isAuth)
 
 	if (!isAuth.status) {
+		console.log("clients socket will be destroyed")
 		socket.destroy()
 		return
 	}

@@ -13,14 +13,16 @@ const wss = new WebSocketServer({ noServer: true })
 
 const PORT = 3900
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
 	console.log("index route of server got hit")
 	res.send("took_a_pill_in_ibixa")
 })
 
 function handleNewConnection(ws: WebSocket, req: IncomingMessage) {
 	console.log("[nu_conn] new connection")
-	ws.send("wassupi cuh?")
+
+	ws.send("[host]: welcome to OATS")
+
 	ws.on("close", handleDisconnection)
 
 	ws.on("message", (data) => handleMessage(ws, data))

@@ -13,13 +13,13 @@ func configureRedirectToWSS(c *http.Client) *RedirectInfo {
 	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		redirectUrl, err := req.Response.Location()
 		if err != nil {
-			return fmt.Errorf("error in getting redirect-url\n: %w", err)
+			return fmt.Errorf("could not get redirect-url\n: %w", err)
 		}
 
 		info.url = redirectUrl
 		info.statusCode = req.Response.StatusCode
+
 		return http.ErrUseLastResponse
-		// return nil
 	}
 	return info
 }
@@ -55,13 +55,12 @@ func (req *Req) LoginRouteHandler(c *http.Client) (*GenericRes, *RedirectInfo, e
 	serverRes.StatusCode = response.StatusCode
 	serverRes.Content = content
 
-	fmt.Printf("\nRedirect-link: %s\n", info.url.String())
 	return serverRes, info, nil
 }
 
 func (req *Req) HandleLoginRoute(c *http.Client) error {
 	if c == nil {
-		log.Fatal("FUHHHH")
+		log.Fatalf("\n [panic] client pointer is null\n")
 	}
 	res, redirectInfo, err := req.LoginRouteHandler(c)
 	if err != nil {
@@ -76,6 +75,7 @@ func (req *Req) HandleLoginRoute(c *http.Client) error {
 		log.Fatal("we've caught the culprit, they said")
 	}
 
+	// Making a websocket request
 	_err := req.requestUpgrade(redirectInfo)
 	if _err != nil {
 		return err

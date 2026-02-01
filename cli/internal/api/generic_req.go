@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -13,20 +14,20 @@ func (req *Req) GenericRequest(c *http.Client) (*GenericRes, error) {
 	}
 
 	if c == nil {
-		panic("client is nill")
+		log.Fatalf("[panic] client pointer is nill")
 	}
 
 	newReq.Header.Set("Content-Type", "application/json")
 	res, err := c.Do(newReq)
 	if err != nil {
-		return nil, fmt.Errorf("error in contacting server:%w", err)
+		return nil, fmt.Errorf("could not contact server:%w", err)
 	}
 
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error in reading response body:%w", err)
+		return nil, fmt.Errorf("could not read content:%w", err)
 	}
 
 	return &GenericRes{res.StatusCode, body, nil}, nil

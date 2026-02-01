@@ -42,6 +42,14 @@ func parseCmdLine() string {
 	return ep
 }
 
+func _masterCredentials() *api.UserCredentials {
+	return &api.UserCredentials{
+		UserName: "childish_gambino",
+		Password: "awaken_my_love",
+		Email:    "donaldglover@spotify.com",
+	}
+}
+
 func parseLoginCredentials() *api.UserCredentials {
 	var userName string
 	var passwd string
@@ -58,9 +66,8 @@ func parseLoginCredentials() *api.UserCredentials {
 		fmt.Scanf("%s", &email)
 
 		if len(userName) < 3 || len(passwd) < 3 || len(email) < 3 {
-			fmt.Println("puhlease provide good creds")
-			fmt.Println(userName, passwd, email)
-			continue
+			fmt.Println(" using _masterCredentials")
+			return _masterCredentials()
 		}
 
 		break

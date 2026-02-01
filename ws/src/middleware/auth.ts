@@ -45,9 +45,17 @@ class Database {
 	}
 
 	simulateConnection(): boolean {
-		// setInterval(() => {
-		// 	console.log("connecting to database")
-		// }, 2000)
+
+		let counter = 0;
+		let interval = setInterval(function () {
+			counter += 1
+			if (counter === 2) {
+				console.log("connected to the database")
+				clearInterval(interval)
+			}
+			console.log("connecting to database...")
+
+		}, 1300)
 
 		console.log("connected to databse")
 		return true;
@@ -56,9 +64,7 @@ class Database {
 	findUser(userName: string, bearerToken: string): AuthStatus {
 		let authStats: AuthStatus = {
 			status: false,
-		}; // ! tells ts to remove all possible null/undefined types
-		//
-		// authStats.status = false
+		}; 
 
 		const userExists = this.#users.has(userName)
 		if (!userExists) {
@@ -91,7 +97,6 @@ const DB = new Database()
 export function authClient(userName: string, bearerToken: string): AuthStatus {
 
 	const isConnected = DB.simulateConnection()
-	// const isConnected = Database.simulateConnection()
 	if (!isConnected) throw new Error("Yoo twin....Database could not be connected yo, what shall ye be done????😭✌️")
 
 	return DB.findUser(userName, bearerToken)

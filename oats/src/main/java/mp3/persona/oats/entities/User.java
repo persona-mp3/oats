@@ -1,5 +1,6 @@
 package mp3.persona.oats.entities;
 
+
 public class User {
 	private int MIN_CRED_LENGTH = 8;
 	// might need to add setters and getters due to the 'OOP' way

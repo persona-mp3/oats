@@ -3,17 +3,19 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/persona-mp3/cli/internal/api"
+	"github.com/persona-mp3/cli/internal/utils"
 )
 
 const (
 	POST_METHOD   = "POST"
+	GET_METHOD    = "GET"
 	addr          = "http://localhost:8990"
 	docsRoute     = "/docs"
 	helpRoute     = "/help-me"
@@ -26,48 +28,10 @@ func newClient() *http.Client {
 	return &http.Client{}
 }
 
-type Req struct {
-	Method   string
-	Endpoint string
-	Context  context.Context
-	Body     io.Reader
-}
-
-type Res struct {
-	Code int
-	Body []byte
-}
-
-func (r *Req) makeRequest(c *http.Client) (*Res, error) {
-	newReq, err := http.NewRequestWithContext(r.Context, r.Method, r.Endpoint, r.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error in creating request:%w", err)
-	}
-
-	if c == nil {
-		log.Fatal("client is nill")
-	}
-
-	newReq.Header.Set("Content-Type", "application/json")
-	res, err := c.Do(newReq)
-	if err != nil {
-		return nil, fmt.Errorf("error in contacting server:%w", err)
-	}
-
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error in reading response body:%w", err)
-	}
-
-	return &Res{res.StatusCode, body}, nil
-}
-
 func parseCmdLine() string {
 	// later on, add validation to check if the endpoint actually exists
 	var ep string
-	flag.StringVar(&ep, "ep", "welcome", "endpoint to visit, default is welcome")
+	flag.StringVar(&ep, "ep", "/welcome", "endpoint to visit, default is welcome")
 	flag.Parse()
 
 	if len(ep) < 5 {
@@ -78,13 +42,15 @@ func parseCmdLine() string {
 	return ep
 }
 
-type UserCredentials struct {
-	UserName string `json:"userName"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+func _masterCredentials() *api.UserCredentials {
+	return &api.UserCredentials{
+		UserName: "childish_gambino",
+		Password: "awaken_my_love",
+		Email:    "donaldglover@spotify.com",
+	}
 }
 
-func parseLoginCredentials() *UserCredentials {
+func parseLoginCredentials() *api.UserCredentials {
 	var userName string
 	var passwd string
 	var email string
@@ -100,45 +66,38 @@ func parseLoginCredentials() *UserCredentials {
 		fmt.Scanf("%s", &email)
 
 		if len(userName) < 3 || len(passwd) < 3 || len(email) < 3 {
-			fmt.Println("puhlease provide good creds")
-			fmt.Println(userName, passwd, email)
-			continue
+			fmt.Println(" using _masterCredentials")
+			return _masterCredentials()
 		}
 
 		break
 	}
 
-	return &UserCredentials{userName, passwd, email}
-}
-
-func toJson(data any) ([]byte, error) {
-	content, err := json.Marshal(data)
-	if err != nil {
-		return []byte{}, fmt.Errorf("error in converting to_json: %w", err)
+	return &api.UserCredentials{
+		UserName: userName,
+		Password: passwd,
+		Email:    email,
 	}
-	return content, nil
 }
 
 func main() {
 	tgtEndpoint := parseCmdLine()
 
-	newReq := &Req{
-		Method:   "GET",
+	newReq := &api.Req{
+		Method:   http.MethodGet,
 		Endpoint: addr + tgtEndpoint,
 		Body:     nil,
 	}
-
 	if tgtEndpoint == registerRoute || tgtEndpoint == loginRoute {
-		fmt.Println("hitting /login, provide credentials")
-
+		fmt.Printf(" hitting %s, provide credentials\n", tgtEndpoint)
 		creds := parseLoginCredentials()
-		data, err := toJson(creds)
+		data, err := utils.ToJson(creds)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		newReq.Method = POST_METHOD
+		newReq.Method = http.MethodPost
 		newReq.Body = bytes.NewReader(data)
 	}
 
@@ -146,25 +105,24 @@ func main() {
 	defer cancel()
 	newReq.Context = ctx
 
-	c := newClient()
-	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		res := Res{}
-		res.Code = req.Response.StatusCode
-		url, err := req.Response.Location()
-		if err != nil {
-			return fmt.Errorf("occured in getting Location from redirect\n:%w", err)
-		}
+	client := newClient()
 
-		fmt.Println("irl->", url)
-		fmt.Printf("redirect-response -> %+v+\n", req.Response)
-		return http.ErrUseLastResponse
+	if tgtEndpoint == registerRoute {
+		if err := newReq.HandleLoginRoute(client); err != nil {
+			log.Fatal(err)
+		}
+		return
+
+	} else if tgtEndpoint == loginRoute {
+		fmt.Println(" working on login route")
+		return
 	}
 
-	res, err := newReq.makeRequest(c)
+	res, err := newReq.GenericRequest(client)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("response from server:")
-	fmt.Printf("\n%s\n", res.Body)
+	fmt.Println(" response from server", res.StatusCode)
+	fmt.Printf("\n %s\n", res.Content)
 }

@@ -1,0 +1,36 @@
+/**
+ * @param {String} host_url
+ * @param {Object} params
+ * @returns {string}*/
+function create_url(host_url, params) {
+	const url = new URL(host_url)
+	for (const [key, value] of Object.entries(params)) {
+		url.searchParams.set(key, value)
+	}
+	return url.toString()
+}
+
+const url = create_url("ws://localhost:3900", { "token": "mock_jwt_token_by_auth_server" })
+const socket = new WebSocket(url)
+
+socket.addEventListener("open", (evt) => {
+	console.log("connecion established")
+	socket.send(`[js_client]: playing warmpop at ${Date.now()}`)
+})
+
+socket.addEventListener("message", (evt) => {
+	console.log("[recv]: ", Date.now())
+	console.log(evt.data)
+	console.log("\n\n")
+})
+
+
+socket.addEventListener("close", (evt) => {
+	console.log("_closed", evt.code, evt.reason)
+})
+
+
+socket.addEventListener("error", (err) => {
+	console.error("_error: ", err)
+})
+

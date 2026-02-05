@@ -1,96 +1,74 @@
-import express from "express"
-import { createServer } from "node:http"
 import WebSocket, { WebSocketServer } from "ws"
+import express from "express"
+import net from "node:net"
+import { createServer } from "node:http"
+
+import { handleMessageEvent } from "./handler.js"
+
 import dotenv from "dotenv"
-import { ServerUtils as s_utils } from "./utils/util.js"
 
-import type { OatSocket } from "./types.js"
+import { ServerUtils } from "./utils/util.js"
 
-dotenv.config()
 const WSS_PORT = process.env.WSS_PORT
-// const SERVER_ADDR = `http://localhost:${WSS_PORT}`
+
 if (!WSS_PORT) {
-	console.error("port for wsserver hasn't been set")
+	console.error(" env for WSS_PORT has not been set, please set it")
 	process.exit()
 }
 
 const app = express()
-const http_server = createServer(app)
-const ws_server = new WebSocketServer({ noServer: true })
-
-app.get("/welcome", (_req, res) => {
-	console.log("[/welcome]: visited")
-	res.send("hello there")
-})
+const httpServer = createServer(app)
+const wsServer = new WebSocketServer({ noServer: true })
 
 
-// ==== handlers =====
-function handle_message(oat_socket: OatSocket, msg: any, broadcast?: Function) { }
-// ====§====§====§====
+wsServer.on("connection", (socket: WebSocket) => {
+	console.log("new client has connected: ", socket.user)
 
-ws_server.on("connection", (oat_socket) => {
 
-	oat_socket.on("message", (msg: WebSocket.RawData) => {
-		console.log("new message")
-		console.log("::%s", msg)
-		ws_server.clients.forEach((client) => {
-			if (client !== oat_socket && client.readyState === WebSocket.OPEN) {
-				client.send(msg)
-			}
-		})
-
+	socket.on("message", (msg) => {
+		handleMessageEvent(msg, socket, wsServer)
 	})
 
+	socket.on("close", (code: number, reason: any) => {
+		console.log("client closing connection")
+		console.log("code: %d, reason: %s", code, reason)
+	})
 
-	oat_socket.send(" welcome to the plate of oats... ")
-
-	// oat_socket.on("close", (evt) => {
-	// })
-	//
-	// oat_socket.on("error", (err) => {
-	// })
+	socket.on("error", (err) => {
+		console.log(" error occured with a connected client: ", socket.user)
+		console.log(err)
+	})
 })
 
 
-http_server.on("upgrade", (req, socket, head) => {
-	console.log("[event]: handling upgrade request")
 
-	const redirect_url = req.url
-	if (!redirect_url) {
-		socket.write("400: provide redirect-url")
+
+httpServer.on("upgrade", (req, socket, head) => {
+	const url = req.url
+	if (!url) {
+		socket.write("400: Forbidden")
 		socket.destroy()
 		return
 	}
 
-	let non_shared_buffer = head.toString()
-	console.log("what was passed in as head", non_shared_buffer)
-
-	const params = s_utils.parse_url(redirect_url)
+	const params = ServerUtils.parseUrl(url)
 	if (!params.valid) {
-		socket.write("403: invalid credentials")
+		socket.write("400: Forbidden")
 		socket.destroy()
 		return
 	}
 
-	const valid_token = s_utils.verify_jwt_token(params.token)
-	if (!valid_token) {
-		socket.write("403: invalid token")
-		socket.destroy()
-		return
-	}
-
-	ws_server.handleUpgrade(req, socket, head, (oat_socket: OatSocket) => {
-		// check cache and also attach user_info here
-		oat_socket.token = params.token
-		ws_server.emit("connection", oat_socket)
+	wsServer.handleUpgrade(req, socket, head, (socket) => {
+		socket.token = params.token
+		socket.user = params.user
+		wsServer.emit("connection", socket)
 	})
 
 })
 
-
-http_server.listen(WSS_PORT, () => {
+httpServer.listen(WSS_PORT, () => {
 	console.log(`
-		http-ws_server running on http://localhost:${WSS_PORT}
-		ws_protocol on ws://localhost:${WSS_PORT}
+		serve active on @ http://localhost:${WSS_PORT}
 	`)
 })
+

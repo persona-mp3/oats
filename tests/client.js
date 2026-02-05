@@ -10,12 +10,16 @@ function create_url(host_url, params) {
 	return url.toString()
 }
 
-const url = create_url("ws://localhost:3900", { "token": "mock_jwt_token_by_auth_server" })
+const url = create_url("ws://localhost:3900", {
+	"user": "whosisland",
+	"token": "mock_jwt_token_by_auth_server"
+})
+
 const socket = new WebSocket(url)
 
 socket.addEventListener("open", (evt) => {
 	console.log("connecion established")
-	socket.send(`[js_client]: playing warmpop at ${Date.now()}`)
+	socket.send(sendJson())
 })
 
 socket.addEventListener("message", (evt) => {
@@ -34,3 +38,14 @@ socket.addEventListener("error", (err) => {
 	console.error("_error: ", err)
 })
 
+
+function sendJson() {
+	const msg = {
+		dest: "ladiesman217",
+		from: "whosisland",
+		time: Date.now().toString(),
+		message: "yeah came in w the sauceee"
+	}
+
+	return JSON.stringify(msg)
+}

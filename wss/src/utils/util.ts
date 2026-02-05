@@ -13,9 +13,9 @@ export class ServerUtils {
 		return true
 	}
 
-	static parse_url(url: string): params {
+	static parseUrl(url: string): params {
 		const user_params: params = {
-			token: "", valid: false
+			token: "", valid: false, user: ""
 		}
 		let cleaned_url = url.replaceAll(" ", "")
 		if (!cleaned_url || cleaned_url.length < 5) {
@@ -25,13 +25,15 @@ export class ServerUtils {
 		try {
 			const to_url = new URL(SERVER_ADDR + cleaned_url)
 			const token = to_url.searchParams.get("token")
+			const user = to_url.searchParams.get("user")
 
-			if (!token) {
+			if (!token || !user) {
 				return user_params
 			}
 
 			user_params.token = token
 			user_params.valid = true
+			user_params.user = user
 
 			return user_params
 		} catch (err) {

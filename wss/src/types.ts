@@ -1,14 +1,17 @@
 import WebSocket from "ws"
 
+
 export type params = {
+	user: string
 	token: string
 	valid: boolean
 }
 
-export interface OatSocket extends WebSocket {
-		token?: string
-}
-
+// export interface OatSocket extends WebSocket {
+// 	token?: string
+// 	user?: string
+// }
+//
 
 export type Contact = {
 	name: string
@@ -21,5 +24,6 @@ export type User = {
 	email: string
 	contacts: Contact[]
 }
+
 
 

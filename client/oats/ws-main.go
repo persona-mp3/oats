@@ -2,6 +2,7 @@ package oats
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -112,6 +113,13 @@ func HandleEvent(conn *websocket.Conn, val string, stdin <-chan string) error {
 	return nil
 }
 
+type Message struct {
+	From    string `json:"from"`
+	Dest    string `json:"dest"`
+	Message string `json:"message"`
+	Time    string `json:"time"`
+}
+
 func (evt *Event) ChatEvent() error {
 	var msg string
 	fmt.Print(" [send-chat]  ")
@@ -124,9 +132,33 @@ func (evt *Event) ChatEvent() error {
 
 	fmt.Print(" [*] ")
 
-	err := evt.conn.WriteMessage(websocket.TextMessage, []byte(msg))
+	// content, err := parseToJson(msg)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// err := evt.conn.WriteMessage(websocket.TextMessage, []byte(msg))
+	// evt.conn.WriteJSON()
+	err := evt.conn.WriteJSON(createMessage(msg))
 	if err != nil {
 		return fmt.Errorf("could not send %w", err)
 	}
 	return nil
+}
+
+func parseToJson(data any) ([]byte, error) {
+	content, err := json.Marshal(data)
+	if err != nil {
+		return []byte{}, fmt.Errorf(" error in marsahlling: %w\n", err)
+	}
+	return content, nil
+}
+
+func createMessage(msg string) *Message {
+	return &Message{
+		From:    "master_user",
+		Dest:    "ladiesman217",
+		Message: msg,
+		Time:    time.Now().String(),
+	}
 }

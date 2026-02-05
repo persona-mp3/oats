@@ -31,9 +31,10 @@ function handle_message(oat_socket: OatSocket, msg: any, broadcast?: Function) {
 ws_server.on("connection", (oat_socket) => {
 
 	oat_socket.on("message", (msg: WebSocket.RawData) => {
-
+		console.log("new message")
+		console.log("::%s", msg)
 		ws_server.clients.forEach((client) => {
-			if (client !== oat_socket || client.readyState === WebSocket.OPEN) {
+			if (client !== oat_socket && client.readyState === WebSocket.OPEN) {
 				client.send(msg)
 			}
 		})

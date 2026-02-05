@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := oats.BeginWSProtocol(wsAddr); err != nil {
+	if err := oats.BeginOatsProtocol(wsAddr); err != nil {
 		log.Fatal(err)
 	}
 }

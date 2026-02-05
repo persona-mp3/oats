@@ -35,8 +35,8 @@ func ToJson(value any) ([]byte, error) {
 	return content, nil
 }
 
-func createRequest(creds *common.Credentials) (*http.Request, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+func createRequest(creds *common.Credentials) (*common.RedirectInfo, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	// TODO: parseUrl function
@@ -53,31 +53,30 @@ func createRequest(creds *common.Credentials) (*http.Request, error) {
 	}
 
 	req.Header.Set("content-type", "application/json")
-	return req, nil
-}
-
-func HandleLoginRoute(creds *common.Credentials) (string, error) {
-	req, err := createRequest(creds)
-	if err != nil {
-		return "", fmt.Errorf(" error in executing request:\n  %w", err)
-	}
-
-	//  handling response
 	client := &http.Client{}
 	info := configRedirectToWSS(client)
-
 	res, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf(" error in executing request:\n  %w", err)
+		return nil, fmt.Errorf(" error in executing request:\n  %w", err)
 	}
 
 	if res.StatusCode == http.StatusInternalServerError {
-		return "", fmt.Errorf(" error from server: %d\n", res.StatusCode)
+		return nil, fmt.Errorf(" error from server: %d\n", res.StatusCode)
 	}
 
 	defer res.Body.Close()
 
 	fmt.Printf(" redirect-info: %+v\n", info)
+
+	return info, nil
+}
+
+func HandleLoginRoute(creds *common.Credentials) (string, error) {
+	info, err := createRequest(creds)
+
+	if err != nil {
+		return "", err
+	}
 
 	return info.Location.String(), nil
 }

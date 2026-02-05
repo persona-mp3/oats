@@ -17,3 +17,8 @@ type Credentials struct {
 type RedirectInfo struct {
 	Location *url.URL
 }
+
+type Event struct {
+	Name  int
+	Value string
+}

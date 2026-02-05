@@ -15,7 +15,7 @@ const (
 func defaultCredentials() *common.Credentials {
 	return &common.Credentials{
 		Username: "master_user",
-		Password: "mock_password",
+		Password: "m@ster_password",
 	}
 }
 

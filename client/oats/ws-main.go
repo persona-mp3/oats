@@ -12,8 +12,8 @@ import (
 	"github.com/persona-mp3/client/common"
 )
 
-// Begins the WSS Protocol by following the redirect 
-// address provided by addr. 
+// Begins the WSS Protocol by following the redirect
+// address provided by addr.
 //
 // It contacts the server using the DialContext method.
 func BeginOatsProtocol(addr string) error {
@@ -50,26 +50,25 @@ func mainCollesium(conn *websocket.Conn) error {
 		if err := HandleEvent(conn, val, stdinCh); err != nil {
 			log.Println(err)
 		}
-
-		go func() {
-			err := ReadFromServer(conn)
-			if err != nil {
-				log.Println(err)
-			}
-		}()
-
-		interruptCh := make(chan os.Signal, 1)
-		signal.Notify(interruptCh, os.Interrupt)
-
-		go func() {
-			defer close(interruptCh)
-
-			sig := <-interruptCh
-			fmt.Printf(" recvd: %v\n", sig)
-			closeConnection(conn)
-		}()
 	}
 
+	go func() {
+		err := ReadFromServer(conn)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+
+	interruptCh := make(chan os.Signal, 1)
+	signal.Notify(interruptCh, os.Interrupt)
+
+	go func() {
+		defer close(interruptCh)
+
+		sig := <-interruptCh
+		fmt.Printf(" recvd: %v\n", sig)
+		closeConnection(conn)
+	}()
 	return nil
 }
 

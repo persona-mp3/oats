@@ -8,6 +8,7 @@ import (
 	"github.com/persona-mp3/client/internal/api"
 	"github.com/persona-mp3/client/internal/cli"
 	"github.com/persona-mp3/client/oats"
+	// "github.com/persona-mp3/client/utils"
 )
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// utils.ClearScreen()
 	if err := oats.BeginOatsProtocol(wsAddr); err != nil {
 		log.Fatal(err)
 	}

@@ -40,6 +40,7 @@ func BeginOatsProtocol(addr string) error {
 // Responsible for reading messages from the wss
 func mainCollesium(conn *websocket.Conn) error {
 	stdinCh := readStdin()
+	go readFromServer(conn)
 	for {
 		val, ok := <-stdinCh
 		if !ok {
@@ -50,14 +51,8 @@ func mainCollesium(conn *websocket.Conn) error {
 		if err := HandleEvent(conn, val, stdinCh); err != nil {
 			log.Println(err)
 		}
-	}
 
-	go func() {
-		err := ReadFromServer(conn)
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	}
 
 	interruptCh := make(chan os.Signal, 1)
 	signal.Notify(interruptCh, os.Interrupt)
@@ -72,14 +67,14 @@ func mainCollesium(conn *websocket.Conn) error {
 	return nil
 }
 
-func ReadFromServer(conn *websocket.Conn) error {
+func readFromServer(conn *websocket.Conn) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			return fmt.Errorf(" could not read message\n :%w", err)
+			log.Println(" could not read: ", err)
 		}
 
-		fmt.Printf(" [#] %s\n", msg)
+		fmt.Printf(" [#]: %s\n", msg)
 	}
 }
 

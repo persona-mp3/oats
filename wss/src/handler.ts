@@ -1,6 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws"
 
 const utf_8_encoding = "utf-8"
+
 type MessageJson = {
 	dest: string | "server"
 	from: string
@@ -48,9 +49,22 @@ export function handleMessageEvent(payload: WebSocket.RawData, conn: WebSocket, 
 	return
 }
 
-export function createServerMessage( msg: string, code?: number): string {
+const ERR_INTERNAL_SERVER_ERR_MSG = "Internal Server Error"
+
+function internalServerErrorMessage(): string {
+	const msg: MessageJson = {
+		dest: "you",
+		from: "SERVER",
+		time: Date.now().toString(),
+		code: 500,
+		message: ERR_INTERNAL_SERVER_ERR_MSG,
+	}
+
+	return JSON.stringify(msg)
+}
+export function createServerMessage(msg: string, code?: number): string {
 	const response: MessageJson = {
-		dest: "",
+		dest: "you",
 		from: "SERVER",
 		time: Date.now().toString(),
 		code: 200,
@@ -63,7 +77,7 @@ export function createServerMessage( msg: string, code?: number): string {
 		return JSON.stringify(response)
 	} catch (err) {
 		console.log(" parsing error:", err)
-		return ""
+		return internalServerErrorMessage()
 	}
 }
 

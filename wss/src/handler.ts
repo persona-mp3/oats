@@ -1,14 +1,11 @@
 import WebSocket, { WebSocketServer } from "ws"
+import { Message, ServerResponse, MessageType } from "./types.js"
 
 const utf_8_encoding = "utf-8"
 
-type MessageJson = {
-	dest: string | "server"
-	from: string
-	time: string
-	message: string
-	code: number | 200
-}
+
+export function handleMessageEventNew(payload: Message, conn: WebSocket, wss: WebSocketServer) { }
+
 
 // so we want to receive a json based-message
 // and then send the message to the target
@@ -16,7 +13,7 @@ export function handleMessageEvent(payload: WebSocket.RawData, conn: WebSocket, 
 	console.log(" handling_message")
 	console.log("%s", payload.toString())
 	try {
-		const msg: MessageJson = JSON.parse(payload.toString(utf_8_encoding))
+		const msg: Message = JSON.parse(payload.toString(utf_8_encoding))
 
 		if (msg.dest.replaceAll(" ", "") == "") {
 			console.log(" no valid dest provided, echo back to client or prompt to provide destpayload")
@@ -33,11 +30,16 @@ export function handleMessageEvent(payload: WebSocket.RawData, conn: WebSocket, 
 			}
 		})
 
-		if (!isSent) {
-			conn.send(createSendLaterStatus(conn.user))
-		}
 
-		conn.send(createSuccessfulSend(conn.user))
+		const res = createServerMessage(" a ninja bike would be nice")
+		conn.send(res)
+
+		// if (!isSent) {
+		// 	conn.send(createSendLaterStatus(conn.user))
+		// } else {
+		// 	return
+		// }
+		//
 		return
 
 
@@ -52,7 +54,7 @@ export function handleMessageEvent(payload: WebSocket.RawData, conn: WebSocket, 
 const ERR_INTERNAL_SERVER_ERR_MSG = "Internal Server Error"
 
 function internalServerErrorMessage(): string {
-	const msg: MessageJson = {
+	const msg: Message = {
 		dest: "you",
 		from: "SERVER",
 		time: Date.now().toString(),
@@ -63,7 +65,7 @@ function internalServerErrorMessage(): string {
 	return JSON.stringify(msg)
 }
 export function createServerMessage(msg: string, code?: number): string {
-	const response: MessageJson = {
+	const resBody: Message = {
 		dest: "you",
 		from: "SERVER",
 		time: Date.now().toString(),
@@ -71,7 +73,11 @@ export function createServerMessage(msg: string, code?: number): string {
 		message: msg
 	}
 
-	if (code) response.code = code
+	const response: ServerResponse = {
+		messageType: MessageType.CHAT,
+		body: resBody,
+		paint: []
+	}
 
 	try {
 		return JSON.stringify(response)
@@ -82,8 +88,15 @@ export function createServerMessage(msg: string, code?: number): string {
 }
 
 
+
+
+
+
+
+
+
 function createEmptyDestStatus(user: string): string {
-	const msg: MessageJson = {
+	const msg: Message = {
 		dest: user,
 		from: "SERVER",
 		time: Date.now().toString(),
@@ -91,23 +104,34 @@ function createEmptyDestStatus(user: string): string {
 		message: "Provide destination to send, Message rejected"
 	}
 
+	const response: ServerResponse = {
+		messageType: MessageType.CHAT,
+		body: msg,
+		paint: []
+	}
+
 	return JSON.stringify(msg)
 }
 
 function createSendLaterStatus(user: string): string {
-	const msg: MessageJson = {
+	const msg: Message = {
 		dest: user,
 		from: "SERVER",
 		time: Date.now().toString(),
 		code: 200,
 		message: `Send later to ${user}`
 	}
+	const response: ServerResponse = {
+		messageType: MessageType.CHAT,
+		body: msg,
+		paint: []
+	}
 
 	return JSON.stringify(msg)
 }
 
 function createSuccessfulSend(user: string): string {
-	const msg: MessageJson = {
+	const msg: Message = {
 		dest: user,
 		from: "SERVER",
 		time: Date.now().toString(),
@@ -115,5 +139,10 @@ function createSuccessfulSend(user: string): string {
 		message: `Successful`
 	}
 
+	const response: ServerResponse = {
+		messageType: MessageType.CHAT,
+		body: msg,
+		paint: []
+	}
 	return JSON.stringify(msg)
 }

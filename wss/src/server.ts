@@ -3,6 +3,8 @@ import express from "express"
 import { createServer } from "node:http"
 
 import { handleMessageEvent, createServerMessage } from "./handler.js"
+import { MockMongoDB } from "./db/mongo.js"
+import { ServerResponse, MessageType } from "./types.js"
 
 import dotenv from "dotenv"
 
@@ -22,10 +24,34 @@ const wsServer = new WebSocketServer({ noServer: true })
 
 
 const WELCOME_MESSAGE = " Welcome To Oats"
+
+// enum MessageType { paint }
+// type ResponseMessage = {
+// 	type: MessageType
+// 	body?: any
+// }
+
+
+function firstContentfulPaint(user: string): string {
+	const res: ServerResponse = {
+		messageType: MessageType.PAINT,
+		body: {
+			from: "server", dest: user,
+			time: Date.now().toLocaleString(),
+			message: "paint", code: 200
+		}
+	}
+
+	const friends = MockMongoDB.findUser(user)
+	res.paint = friends
+	return JSON.stringify(res)
+}
+
 wsServer.on("connection", (socket: WebSocket) => {
 	console.log("new client has connected: ", socket.user)
 
 	socket.send(createServerMessage(WELCOME_MESSAGE, 200))
+	socket.send(firstContentfulPaint(socket.user))
 
 
 	socket.on("message", (msg) => {

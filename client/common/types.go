@@ -26,3 +26,15 @@ type Event struct {
 	Name  int
 	Value string
 }
+
+type Friend struct {
+	Name     string `json:"name"`
+	LastSeen string `json:"lastSeen"`
+}
+
+type Message struct {
+	Dest    string `json:"dest"`
+	From    string `json:"from"`
+	Time    string `json:"time"`
+	Message string `json:"message"`
+}

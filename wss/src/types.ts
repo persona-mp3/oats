@@ -19,11 +19,32 @@ export type Contact = {
 	lastSeen: string
 }
 
-export type User = {
+export type UserDB = {
 	name: string
 	email: string
 	contacts: Contact[]
 }
 
+
+export type Message = {
+	dest: string | "server"
+	from: string
+	time: string
+	message: string
+	code: number | 200
+
+}
+
+export type Friend = {
+	name: string
+	lastSeen: string
+}
+
+export enum MessageType { PAINT, CHAT }
+export type ServerResponse = {
+	messageType: MessageType
+	body: Message
+	paint?: Friend[]
+}
 
 

@@ -6,6 +6,10 @@ var WelcomeEndpoint = "/welcome"
 var LoginEndpoint = "/login"
 var AuthServer = "http://localhost:8000"
 
+var SingleChat = "i"
+var MulChat = "a"
+var QuitChat = "q"
+
 var ChatEvent = 1
 var FindFlag = 2
 

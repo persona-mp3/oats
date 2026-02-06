@@ -71,12 +71,12 @@ func createRequest(creds *common.Credentials) (*common.RedirectInfo, error) {
 	return info, nil
 }
 
-func HandleLoginRoute(creds *common.Credentials) (string, error) {
+func HandleLoginRoute(creds *common.Credentials) (*common.RedirectInfo, error) {
 	info, err := createRequest(creds)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return info.Location.String(), nil
+	return info, nil
 }

@@ -48,6 +48,25 @@ export function handleMessageEvent(payload: WebSocket.RawData, conn: WebSocket, 
 	return
 }
 
+export function createServerMessage( msg: string, code?: number): string {
+	const response: MessageJson = {
+		dest: "",
+		from: "SERVER",
+		time: Date.now().toString(),
+		code: 200,
+		message: msg
+	}
+
+	if (code) response.code = code
+
+	try {
+		return JSON.stringify(response)
+	} catch (err) {
+		console.log(" parsing error:", err)
+		return ""
+	}
+}
+
 
 function createEmptyDestStatus(user: string): string {
 	const msg: MessageJson = {

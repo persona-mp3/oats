@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// utils.ClearScreen()
-	if err := oats.BeginOatsProtocol(wsAddr); err != nil {
+	if err := oats.StartProtocol(wsAddr); err != nil {
 		log.Fatal(err)
 	}
 }

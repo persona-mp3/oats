@@ -1,12 +1,12 @@
 import WebSocket, { WebSocketServer } from "ws"
 import express from "express"
-import net from "node:net"
 import { createServer } from "node:http"
 
-import { handleMessageEvent } from "./handler.js"
+import { handleMessageEvent, createServerMessage } from "./handler.js"
 
 import dotenv from "dotenv"
 
+dotenv.config()
 import { ServerUtils } from "./utils/util.js"
 
 const WSS_PORT = process.env.WSS_PORT
@@ -21,8 +21,11 @@ const httpServer = createServer(app)
 const wsServer = new WebSocketServer({ noServer: true })
 
 
+const WELCOME_MESSAGE = " Welcome To Oats"
 wsServer.on("connection", (socket: WebSocket) => {
 	console.log("new client has connected: ", socket.user)
+
+	socket.send(createServerMessage(WELCOME_MESSAGE, 200))
 
 
 	socket.on("message", (msg) => {

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "socket.io": "^4.8.3",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/socket.io": "^3.0.1",
+    "@types/ws": "^8.18.1"
+  }
+}

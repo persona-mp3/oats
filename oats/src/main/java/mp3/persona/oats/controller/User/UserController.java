@@ -1,0 +1,68 @@
+package mp3.persona.oats.controller.User;
+
+import mp3.persona.oats.utils.Utils;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.util.LinkedMultiValueMap;
+
+import org.springframework.util.MultiValueMap;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+
+import mp3.persona.oats.repository.Users;
+import mp3.persona.oats.entities.User;
+
+@RestController
+// might use OAuth for authentication or feeling funky shh
+class UserController {
+	// will later actual repositories and mongoDB
+	private String redirectBaseLink = "ws://localhost:3900";
+	private String authToken = "don't_be_scandalous";
+
+	@PostMapping("/register")
+	public ResponseEntity<?> loginUser(@RequestBody User userReq) {
+		if (!userReq.isValidCreds()) {
+			return sendBadRequest("credenatials do not meet requirements");
+		}
+
+		// ===== simulate connecting to db =====
+		Users.onConnect();
+
+		if (!Users.findUser(userReq)) {
+			return sendBadRequest("invalid credentials or user doesn't exist");
+		}
+
+		MultiValueMap<String, String> mulMap = new LinkedMultiValueMap<>();
+		// You can add other query params here
+		mulMap.add("userName", userReq.userName);
+		mulMap.add("token", authToken);
+
+		String to_wss = "";
+		try {
+			to_wss = Utils.parseUrl(redirectBaseLink, mulMap);
+		} catch (Exception err) {
+			System.out.printf("unexpected erorr occured:", err);
+			return ResponseEntity.internalServerError().build();
+		}
+
+		return sendRedirectToWSServer(to_wss);
+	}
+
+	private ResponseEntity<Void> sendRedirectToWSServer(String url) {
+		return ResponseEntity
+				.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url)
+				.build();
+	}
+
+	private ResponseEntity<String> sendBadRequest(String msg) {
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(msg);
+	}
+
+	@PostMapping("/login")
+	public void registerUser() {
+	}
+}

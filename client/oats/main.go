@@ -1,7 +1,6 @@
 package oats
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 
@@ -34,6 +33,10 @@ func StartProtocol(info *common.RedirectInfo) error {
 	return colosseum(ctx, conn)
 }
 
+// Colosseum is the event loop where all managed channels in the application
+// meet. Events from Stdin, reading from server and os signals(Interrupt or Ctrl + C)
+// are all routed into specific handlers here, just to make the flow of data 
+// easy to keep track of 
 func colosseum(ctx context.Context, conn *websocket.Conn) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -165,50 +168,4 @@ func startChat(ctx context.Context, conn *websocket.Conn, stdin <-chan string) e
 
 	}
 
-}
-
-func fromStdinCh(ctx context.Context) <-chan string {
-	stdin := make(chan string, 1)
-	scanner := bufio.NewScanner(os.Stdin)
-	go func() {
-		defer close(stdin)
-
-		fmt.Printf("  [*] ")
-		for scanner.Scan() {
-			select {
-			case <-ctx.Done():
-				return
-
-			case stdin <- scanner.Text():
-			}
-		}
-	}()
-	return stdin
-}
-
-func fromServerCh(ctx context.Context, conn *websocket.Conn) <-chan ServerResponse {
-	serverMsgCh := make(chan ServerResponse, 1)
-	var msg ServerResponse
-	go func() {
-		defer close(serverMsgCh)
-
-		for {
-			select {
-			case <-ctx.Done():
-				fmt.Println(ctx.Err())
-				return
-
-			default:
-				err := conn.ReadJSON(&msg)
-				if err != nil {
-					fmt.Println(" readjson error:", err)
-					return
-				}
-
-				serverMsgCh <- msg
-			}
-
-		}
-	}()
-	return serverMsgCh
 }

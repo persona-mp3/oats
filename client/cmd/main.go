@@ -12,13 +12,23 @@ import (
 )
 
 func main() {
-	tgtEndpoint := cli.ReadArgs()
+	tgtEndpoint, loadConf := cli.ReadArgs()
 
 	if tgtEndpoint != common.LoginEndpoint {
 		fmt.Println("handling for other route")
 		return
 	}
-	creds := cli.ParseLoginCredentials()
+
+	creds := &common.Credentials{}
+	var err error
+	if !loadConf {
+		creds = cli.ParseLoginCredentials()
+	} else {
+		creds, err = cli.LoadCredentials()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	wsAddr, err := api.HandleLoginRoute(creds)
 	if err != nil {
 		log.Fatal(err)

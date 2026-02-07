@@ -47,6 +47,11 @@ export class MockMongoDB {
 		mockDb.set("master_user", goClientContacts)
 		mockDb.set("node_client", nodeClientContacts)
 
-		return mockDb.get(user)
+		console.log(" searching for:", user)
+
+		const paint = mockDb.get(user)
+		console.log("paint content:", paint)
+
+		return paint
 	}
 }

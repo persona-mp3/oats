@@ -34,6 +34,11 @@ export function handleMessageEvent(payload: WebSocket.RawData, conn: WebSocket, 
 		const res = createServerMessage(" a ninja bike would be nice")
 		conn.send(res)
 
+		// we'd want to cache this or put inside kafka or rabbitMQ, a message broker
+		if (!isSent) {
+			console.log(" could not find dest user: %s for %s:", msg.dest, conn.user)
+			return
+		}
 		// if (!isSent) {
 		// 	conn.send(createSendLaterStatus(conn.user))
 		// } else {

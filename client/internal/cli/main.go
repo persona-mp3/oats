@@ -26,10 +26,10 @@ func ParseLoginCredentials() *common.Credentials {
 
 	fmt.Println(" provide credentials")
 	for {
-		fmt.Println(" username: ")
+		fmt.Printf(" username: ")
 		fmt.Scanf("%s", &userName)
 
-		fmt.Println(" password: ")
+		fmt.Printf(" password: ")
 		fmt.Scanf("%s", &password)
 
 		_username := strings.ReplaceAll(userName, " ", "")
@@ -48,9 +48,11 @@ func ParseLoginCredentials() *common.Credentials {
 	return creds
 }
 
-func ReadArgs() string {
+func ReadArgs() (string, bool) {
 	var endpoint string
+	var config bool
 	flag.StringVar(&endpoint, "ep", "/welcome", "endpoint to visit, default is welcome")
+	flag.BoolVar(&config, "cfg", false, " load credentials from .oat_creds.json")
 	flag.Parse()
 
 	// TODO: validate endpoint
@@ -59,6 +61,7 @@ func ReadArgs() string {
 		endpoint = common.WelcomeEndpoint
 	}
 
-	return endpoint
+
+	return endpoint, config
 }
 

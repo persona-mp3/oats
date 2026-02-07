@@ -35,8 +35,8 @@ func StartProtocol(info *common.RedirectInfo) error {
 
 // Colosseum is the event loop where all managed channels in the application
 // meet. Events from Stdin, reading from server and os signals(Interrupt or Ctrl + C)
-// are all routed into specific handlers here, just to make the flow of data 
-// easy to keep track of 
+// are all routed into specific handlers here, just to make the flow of data
+// easy to keep track of
 func colosseum(ctx context.Context, conn *websocket.Conn) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -109,12 +109,10 @@ type Friend struct {
 	LastSeen string `json:"lastSeen"`
 }
 
-//	type Message struct {
-//		Dest    string `json:"dest"`
-//		From    string `json:"from"`
-//		Time    string `json:"time"`
-//		Message string `json:"message"`
-//	}
+// This maps the kinds of messages provided in the server's
+// response and calling the appropriate handler
+//
+// Any errors from handlers are propagated upwards
 func processServerResponse(res *ServerResponse) error {
 	responseType := res.MessageType
 

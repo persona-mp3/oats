@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/persona-mp3/client/common"
-	"github.com/persona-mp3/client/internal/renderer"
-	"github.com/persona-mp3/client/utils"
+	"github.com/persona-mp3/clients/common"
+	"github.com/persona-mp3/clients/internal/renderer"
+	"github.com/persona-mp3/clients/utils"
 )
 
 func StartProtocol(info *common.RedirectInfo) error {
@@ -52,7 +52,7 @@ func colosseum(ctx context.Context, conn *websocket.Conn) error {
 
 	fromStdin := fromStdinCh(ctx)
 	fromServer := fromServerCh(ctx, conn)
-
+ 
 	for {
 		select {
 		case <-ctx.Done():

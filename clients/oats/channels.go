@@ -12,7 +12,7 @@ func fromStdinCh(ctx context.Context) <-chan string {
 	stdin := make(chan string, 1)
 	scanner := bufio.NewScanner(os.Stdin)
 	go func() {
-		defer close(stdin)
+		defer close(stdin)	
 
 		fmt.Printf("  [*] ")
 		for scanner.Scan() {

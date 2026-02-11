@@ -1,8 +1,3 @@
-// type User = {
-// 	name: string
-// 	lastSeen: string
-// }
-//
 
 import type { Friend } from "../types.js"
 export class MockMongoDB {
@@ -49,8 +44,7 @@ export class MockMongoDB {
 
 		console.log(" searching for:", user)
 
-		const paint = mockDb.get(user)
-		console.log("paint content:", paint)
+		const paint: Friend[] = mockDb.get(user)
 
 		return paint
 	}

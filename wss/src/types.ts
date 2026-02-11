@@ -40,11 +40,24 @@ export type Friend = {
 	lastSeen: string
 }
 
+
 export enum MessageType { PAINT, CHAT }
+
+// All responses from client must be wrapped
+// in this way for determing what kind of message they might be
+export type ClientRequest = {
+	messageType: MessageType
+	body: Message
+}
+
 export type ServerResponse = {
 	messageType: MessageType
 	body: Message
 	paint?: Friend[]
 }
 
+export type DestinationMessage = {
+	From: string
+	Content: string
+}
 

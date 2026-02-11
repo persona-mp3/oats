@@ -10,7 +10,7 @@ function manufactureUrl(host_url, params) {
 
 
 async function ladiesMan217User() {
-	const url = manufactureUrl(serverAddr, { user: "ladiesMan217", token: "ladies_man_217_token" })
+	const url = manufactureUrl(serverAddr, { user: "node_client", token: "ladies_man_217_token" })
 	const socket = new WebSocket(url)
 
 	socket.addEventListener("open", (evt) => {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/persona-mp3/client/common"
+	"github.com/persona-mp3/clients/common"
 )
 
 func LoadCredentials() (*common.Credentials, error) {

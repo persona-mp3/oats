@@ -41,7 +41,7 @@ func getRedirectUrl(client *http.Client) *shared.RedirectInfo {
 
 		return http.ErrUseLastResponse
 	}
-	return nil
+	return info
 }
 
 // Sends the credentials in a post request, using a http Client
@@ -49,7 +49,7 @@ func getRedirectUrl(client *http.Client) *shared.RedirectInfo {
 // the client is redirected to the WebSocket server, but
 // this url is stored in RedirectInfo so that a proper
 // WebSocket Client can be made to perform the request to the server
-func contactLoginEndpoint(creds shared.Credentials) (*shared.RedirectInfo, error) {
+func contactLoginEndpoint(creds *shared.Credentials) (*shared.RedirectInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -87,7 +87,7 @@ func contactLoginEndpoint(creds shared.Credentials) (*shared.RedirectInfo, error
 	return redirectInfo, nil
 }
 
-func LoginHandler(creds shared.Credentials) (*shared.RedirectInfo, error) {
+func LoginHandler(creds *shared.Credentials) (*shared.RedirectInfo, error) {
 	info, err := contactLoginEndpoint(creds)
 	if err != nil {
 		return nil, err

@@ -86,6 +86,7 @@ func Colosseum(ctx context.Context, conn *websocket.Conn) error {
 	}
 }
 
+// =======================
 type Message struct {
 	From    string `json:"from"`
 	Dest    string `json:"dest"`
@@ -103,6 +104,7 @@ type ServerResponse struct {
 	Paint       []Friend `json:"paint"`
 	Body        Message  `json:"body"`
 }
+// =======================
 
 // Commands are provided by the UI, interpreting user commands
 // to specific actions. A ChatCommand will prompt the websocket
@@ -114,7 +116,5 @@ func processStdinCommands(cmd any) {
 // All new server responses are treated as Events and are
 // sent to the UI to handle it's content
 func handleServerResponses(res *ServerResponse) {
-	fmt.Println("handling server response", res)
-	fmt.Printf("%s sent ", res.Body.From)
-	fmt.Printf("%s\n", res.Body)
+	fmt.Printf("%+v\n", res)
 }

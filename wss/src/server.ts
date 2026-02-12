@@ -20,7 +20,7 @@ const app = express()
 const httpServer = createServer(app)
 const wsServer = new WebSocketServer({ noServer: true })
 
-const WELCOME_MESSAGE = " \n\nWelcome To Oats\n\n"
+const WELCOME_MESSAGE = "Welcome To Oats"
 
 const protocols = new Protocols()
 const handlers = new Handlers()

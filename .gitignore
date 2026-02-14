@@ -1,3 +1,5 @@
 oats/target
 node_modules
 ws/dist/
+.vscode/
+wss/dist/

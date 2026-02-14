@@ -1,0 +1,97 @@
+So we need to design the DB which in turn affects the API
+	So firstly, here's like the core of the application:
+		* Users can send messages to one another, via websockets
+		* Also, they can search for a new user, 
+		
+	And this is the current costly, and sad design or would say 
+	first ever prototype I ran through:
+	 I wanted the client to be terminal based, and the interface to 
+	 be vim commands, for example, `i` to send a message, `q` to quit
+	 `f`, find a new user or search for current friends, that sort of
+	 thing. But first, the make a request to an AuthServer that validates
+	 their credentials, extract it from the DB, save to redis and then
+	 redirect them with an id to the websocket server. 
+
+	 The websocket server then checks redis if the user has been 
+	 authorised by checking their id in the redirect url-params. 
+	 And if true, sends a `Paint` content, (latest updates on their 
+	 friends, new messages, and all that jazz) And then, can send
+	 normal messages, but there were alot and severe oversights that 
+	 now makes it feel like I should just abandon this project.
+
+	 1. The most junior thing I could ever do and never do again, think
+			that the application should hypothetically have 1 server, even though
+			I'm going to be the only user and some node-clients, I never thought
+			about, how userrs on two different servers would communicate with 
+			each other. 
+
+		2. Not designing the database/data first before coding. Opens my 
+		   eyes in a way that feels coding is monkey job, that's not where 
+			 money is most of the time, unless it's core applications.
+			 So now, while I had some intuitive API design and protocol instincts,
+			 for example, knowing that a `type ChatMessage struct` should contain 
+			 the `recipient`, `sender`, `time_received`, `message` and more, and 
+			 responses back to the sender that conveyed whether this message 
+			 was sent to the user but they're not online, or they've read it 
+			 and they're online as "Nice Features" they were nice and I pat 
+			 myself for that. But a glaring oversight, that almost burns me trying 
+			 to think about it is always trying to wrap these Response and Request 
+			 types in nonsensical types, and might be overhead in the grandscheme of 
+			 things, especially knowing that JSON is expensive, I thought `this is 
+			 going way faster than I expected, and Protobufs might be good because
+			 there's generalised types and type-saftey, but I understand why people
+			 don't like the cli when I use the protobuf compiler`
+			 Now I'm thinking of how to desing the DB, and that influences the API and
+			 subsequent protocols, and a full-blown rewrite, knowing that, the only code 
+			 to ever run once on first try is no code at all. You can't even run a main.go
+			 or main.c file without the main functions. So after the data thing, I will 
+			 iterate times over times
+
+
+			3. I also like the fact that while the application was actually working, for 
+				 a go and nodejs scripts on two different terminals, I could write logic
+				 for the wsserver that, if some recipient isn't online tell the user. And I 
+				 had plans on storing this somewhere else like Redis or RabbitMQ. Well, WHAT
+				 A GREAT IDEA! Turns out this shit deeper than it is. Because if the recipeient 
+				 isn't online at the moment, we can store it on redis, but now do we always read from
+				 redis? thought it was only when a user connects for the first time. So when the 
+				 recipeint comes back online? Do we run across redis, and a message broker to see 
+				 if anyone left any message for them? It's a websocket server so it's already 
+				 doing too much as these are quite expensive, especially with Node, no shades.
+				 So okay, lets use a MessageBroker, RabbitMQ came to my mind since I have a minimal 
+				 experience with it, like a notificaiton application, that recieves requests, sends to 
+				 rabbitMQ, node microservice consumes from rabbitQ and then sends confirmation email to user
+				 and then writes some stuff to DB. Turns out, this is WEBSOCKETS, and chatmessages, rabbitMQ 
+				 is geard towards `longpolling` if I'm correct? But then I remember 'colleagues: kafka this 
+				 kafka that` alright, some googling, it's a behemot alright, but when to use which and how
+				 to in chat applications? Alot of useless Medium Articles going on rubbish and 
+				 youtube videos not going straight to the point of being vague, google needs to fix 
+				 their search engine, or I'm just retarded
+
+
+
+
+		So I know it's going to be more work indeed, even though I want to go from simple learning project
+		to something actually working... I want to be able to join some abstract singleton factory team 
+		and when they're talking about load-balancers, sharding, micro-services, rabbitmq, all that jazz
+		I don't want to be lost.  Or be given tickets to pick from a board, but atleast own a 
+		particular feature? For example if I was working on a team, I want to be responsible for the 
+		`Notification` microservice, (whatever microservice truly means(just joking)). Not dragging jira
+		ticket err_1738_67 moving to done test ready to oblivion.
+
+		I truly want to bite more than I can chew, but as sad as it to say, someone slap me to 
+		spit out some more to chew what I can chew, or INSTEAD, show me how to chew it. If I choke, 
+		prod breaks. SIMPLE.(hope prod never breaks w my code though, but it's part of the process)
+
+		And this project, then, brought me to the realisation that I'm a measly jr dev.(for now, lol)
+		And what I was trying to chew? Ridiculous! Parsing commands as vim motions? Go Terminal Client 
+		and integrating the BS BubbleTea framework? (again, this is just me angry and frustrated, because 
+		I don't know how to deal with imaginary abstractions, that's why I prefer reading docs and yea
+		for you heathens reading this, UNECESSARY OOP, but simple procedural, even though BubbleTea is truly 
+		a feat for project, whole Terminal UI, and stuff, it's really the best out there) And then dealing 
+		with TYPESCRIPT? and SpringBoot 😭 Yeah, maybe I was doing too much but I feel I CAN DO IT eitherway 
+		but with the expenisive ahh mistake, almost feels like I don't want to try again? Even though I'm 
+		learning how to use springboot for the first time. Maybe it's because I was able to build a similar 
+		vcs to git, infact a git clone but with branching and commits while learning GO, that I think I could 
+		pull this off._lol
+
